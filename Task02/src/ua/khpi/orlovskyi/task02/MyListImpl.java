@@ -9,14 +9,15 @@ import java.util.Iterator;
  *
  */
 public class MyListImpl implements MyList, ListIterable {
+
 	/**
 	 * Internally using array of objects.
 	 */
-	private Object[] arr = {};
+	private Object[] elementData = {};
 	/**
 	 * The size of the MyList (the number of elements it contains).
 	 */
-	private int size;
+	private int currentSize;
 
 	// Modification Operations
 
@@ -29,11 +30,11 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public void add(final Object e) {
-		size = arr.length;
-		Object[] temp = new Object[size + 1];
-		System.arraycopy(arr, 0, temp, 0, size);
-		temp[temp.length - 1] = e;
-		arr = temp;
+		currentSize = elementData.length;
+		Object[] newArray = new Object[currentSize + 1];
+		System.arraycopy(elementData, 0, newArray, 0, currentSize);
+		newArray[newArray.length - 1] = e;
+		elementData = newArray;
 	}
 
 	/**
@@ -41,11 +42,7 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public void clear() {
-		Iterator<Object> e = iterator();
-		while (e.hasNext()) {
-			e.next();
-			e.remove();
-		}
+		elementData = new Object[] {};
 	}
 
 	/**
@@ -53,24 +50,24 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public boolean remove(final Object o) {
-		size = arr.length;
+		currentSize = elementData.length;
 		if (o == null) {
-			for (int i = 0; i < size; i++) {
-				if (arr[i] == null) {
-					Object[] arr2 = new Object[size - 1];
-					System.arraycopy(arr, 0, arr2, 0, i);
-					System.arraycopy(arr, i + 1, arr2, i, arr2.length - i);
-					arr = arr2;
+			for (int i = 0; i < currentSize; i++) {
+				if (elementData[i] == null) {
+					Object[] arr2 = new Object[currentSize - 1];
+					System.arraycopy(elementData, 0, arr2, 0, i);
+					System.arraycopy(elementData, i + 1, arr2, i, arr2.length - i);
+					elementData = arr2;
 					return true;
 				}
 			}
 		} else {
-			for (int i = 0; i < size; i++) {
-				if (o.equals(arr[i])) {
-					Object[] arr2 = new Object[size - 1];
-					System.arraycopy(arr, 0, arr2, 0, i);
-					System.arraycopy(arr, i + 1, arr2, i, arr2.length - i);
-					arr = arr2;
+			for (int i = 0; i < currentSize; i++) {
+				if (o.equals(elementData[i])) {
+					Object[] arr2 = new Object[currentSize - 1];
+					System.arraycopy(elementData, 0, arr2, 0, i);
+					System.arraycopy(elementData, i + 1, arr2, i, arr2.length - i);
+					elementData = arr2;
 					return true;
 				}
 			}
@@ -84,7 +81,7 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public Object[] toArray() {
-		return Arrays.copyOf(arr, size());
+		return Arrays.copyOf(elementData, size());
 	}
 
 	/**
@@ -92,7 +89,7 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public int size() {
-		return size;
+		return elementData.length;
 	}
 
 	/**
@@ -100,21 +97,32 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public boolean contains(final Object o) {
-		Iterator<Object> e = iterator();
+		return indexOf(o) >= 0;
+	}
+
+	/**
+	 * Returns the index of the first occurrence of the specified element in this
+	 * list, or -1 if this list does not contain the element.
+	 *
+	 * @param o
+	 *            element whose presence in this list is to be tested
+	 * @return returns the lowest index or -1 if there is no such index
+	 */
+	private int indexOf(final Object o) {
 		if (o == null) {
-			while (e.hasNext()) {
-				if (e.next() == null) {
-					return true;
+			for (int i = 0; i < elementData.length; i++) {
+				if (elementData[i] == null) {
+					return i;
 				}
 			}
 		} else {
-			while (e.hasNext()) {
-				if (o.equals(e.next())) {
-					return true;
+			for (int i = 0; i < elementData.length; i++) {
+				if (o.equals(elementData[i])) {
+					return i;
 				}
 			}
 		}
-		return false;
+		return -1;
 	}
 
 	/**
@@ -133,24 +141,21 @@ public class MyListImpl implements MyList, ListIterable {
 
 	@Override
 	public final String toString() {
-		size = arr.length;
-		
-		
+		Iterator<Object> it = iterator();
+		if (!it.hasNext()) {
+			return "{}";
+		}
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("{");
-		for (int i = 0; i < size; i++) {
-			if (toArray()[i] == null) {
-				sb.append("[" + "null" + "],");
-				continue;
+		sb.append('{');
+		for (;;) {
+			Object e = it.next();
+			sb.append('[').append(e).append(']');
+			if (!it.hasNext()) {
+				return sb.append('}').toString();
 			}
-			sb.append("[" + arr[i].toString() + "],");
+			sb.append(',').append(' ');
 		}
-		if (sb.length() > 1) {
-			sb.replace(sb.length() - 1, sb.length(), "");
-		}
-		sb.append("}");
-		return sb.toString();
 	}
 
 	@Override
@@ -165,35 +170,35 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	private class IteratorImpl implements Iterator<Object> {
 		/**
-		 * Index of the element of the array.
+		 * Current index of element of the array.
 		 */
-		private int index = -1;
+		private int currentIndex = -1;
 
 		/**
-		 * Return index.
-		 * 
-		 * @return index
+		 * Return current index.
+		 *
+		 * @return current index.
 		 */
-		public int getIndex() {
-			return index;
+		public int getCurrentIndex() {
+			return currentIndex;
 		}
 
-		/**
-		 * Next or previous element.
-		 */
-		private boolean nextOrPrevious = false;
 		/**
 		 * Condition while call remove().
 		 */
 		private boolean condition = true;
+		//private boolean nextOrPrevious = false;
+		//public boolean isNextOrPrevious() {
+			//return nextOrPrevious;
+		//}
 
 		/**
 		 * Returns true if the iteration has more elements.
-		 * 
+		 *
 		 * @return true if the iteration has more elements.
 		 */
 		public boolean hasNext() {
-			if (index < toArray().length - 1) {
+			if (currentIndex < elementData.length - 1) {
 				return true;
 			}
 			return false;
@@ -201,13 +206,12 @@ public class MyListImpl implements MyList, ListIterable {
 
 		/**
 		 * Returns the next element in the iteration.
-		 * 
+		 *
 		 * @return the next element in the iteration.
 		 */
 		public Object next() {
 			condition = false;
-			nextOrPrevious = false;
-			return toArray()[++index];
+			return elementData[++currentIndex];
 		}
 
 		/**
@@ -215,38 +219,29 @@ public class MyListImpl implements MyList, ListIterable {
 		 * iterator.
 		 */
 		public void remove() {
-			//
 			if (isCondition()) {
 				throw new IllegalStateException();
 			}
-			int i = 0;
-			if (!isNextOrPrevious()) {
-				i = index--;
-			} else {
-				i = ++index;
-			}
-			Object[] arr2 = new Object[arr.length - 1];
-			System.arraycopy(arr, 0, arr2, 0, i);
-			System.arraycopy(arr, i + 1, arr2, i, arr2.length - i);
-			arr = arr2;
+			//int i = 0;
+//			if (!isNextOrPrevious()) {
+//				i = currentIndex--;
+//			} else {
+//				i = ++currentIndex;
+//			}
+			Object[] arr2 = new Object[elementData.length - 1];
+			System.arraycopy(elementData, 1, arr2, 0, arr2.length);
+			elementData = arr2;
 			condition = true;
-			if (isNextOrPrevious()) {
-				--index;
-			}
+			--currentIndex;
+//			if (isNextOrPrevious()) {
+//				--currentIndex;
+//			}
 		}
 
 		/**
-		 * Return if list has next or previous element.
-		 * 
-		 * @return nextOrPrevious.
-		 */
-		public boolean isNextOrPrevious() {
-			return nextOrPrevious;
-		}
-
-		/**
-		 * Return condition expression.
-		 * 
+		 * Return true if before calling remove(), was not called next() or before
+		 * calling remove(), was called remove() (repeated call remove()).
+		 *
 		 * @return condition.
 		 */
 		public boolean isCondition() {
@@ -270,23 +265,43 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	private class ListIteratorImpl extends IteratorImpl implements ListIterator {
 
+		/**
+		 * Returns true if this list iterator has more elements when traversing
+		 * the list in the reverse direction.
+		 *
+		 * @return true if this list iterator has more elements when traversing
+		 * the list in the reverse direction.
+		 */
 		@Override
 		public boolean hasPrevious() {
-			if (getIndex() >= 0) {
+			if (getCurrentIndex() >= 0) {
 				return true;
 			}
 			return false;
 		}
 
+		/**
+		 * Returns the previous element in the list and moves the cursor position backwards.
+		 */
 		@Override
 		public Object previous() {
 
-			return toArray()[getIndex() - 1];
+			return elementData[getCurrentIndex() - 1];
 		}
 
+		/**
+		 * Replaces the last element returned by next or previous with the specified element.
+		 */
 		@Override
-		public void set(Object e) {
-			// TODO Auto-generated method stub
+		public void set(final Object e) {
+			
+		}
+		/**
+		 *  Removes from the list the last element that was returned by next or previous.
+		 */
+		@Override
+		public void remove() {
+			
 		}
 
 	}
