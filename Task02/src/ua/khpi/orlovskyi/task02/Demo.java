@@ -1,12 +1,11 @@
 package ua.khpi.orlovskyi.task02;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
 /**
  *
- * Demo of Task01.
+ * Demo of Task02.
  *
  */
 public final class Demo {
@@ -18,16 +17,16 @@ public final class Demo {
 	}
 
 	/**
-	 * Entry point in Demo.
-	 * 
-	 * @param args
-	 *            the args
+	 * Entry point of the Java application.
+	 *
+	 * @param args the parameters.
 	 */
 	public static void main(final String[] args) {
 
 		final Logger log = Logger.getLogger(Demo.class.getName());
 
-		// Part 1
+		// Part 1. Modification methods.
+		System.out.println("----- Modification methods ----- ");
 
 		// Initialize
 		final MyListImpl con = new MyListImpl();
@@ -37,28 +36,22 @@ public final class Demo {
 		con.add("A");
 		con.add(myInteger);
 		con.add(777);
-		con.add(null);
 		con.add(myObject);
 		test.add("A");
 		test.add(myInteger);
 		test.add(777);
-		test.add(null);
 		test.add(myObject);
 
 		// Testing
-		log.info("Test toString: " + con);
+		log.info("Objects added to the array: " + con + ", size:" + con.size());
 		log.info("Test contains All: " + con.containsAll(test));
-		log.info("Test size: " + con.size());
-		log.info("Test remove: " + con.remove(myInteger));
-		log.info("Test toString: " + con);
-		log.info("Test size: " + con.size());
-		log.info("Test contains null: " + con.contains(null));
+		log.info("Object myInteger = 5 was removed: " + con.remove(myInteger) + " " + con);
+		log.info("Test contains 777: " + con.contains(777));
 		con.clear();
 		log.info("Test clear. MyList was cleared: " + con.toString());
-		con.add(5);
-		log.info("add 5: " + con.toString());
 
-		// Part 2
+		// Part 2. Iterator.
+		System.out.println("----- Iterator ----- ");
 
 		// Initialize
 		final MyListImpl part2 = new MyListImpl();
@@ -66,48 +59,53 @@ public final class Demo {
 		part2.add(myInteger);
 		part2.add(1);
 		part2.add(myObject);
-		//part2.add(null);
+		Iterator<Object> it = part2.iterator();
 
 		// Testing
 		for (Object o : part2) {
 			System.out.print(o + " ");
 		}
 		System.out.println();
-		Iterator<Object> it = part2.iterator();
+		// it.remove(); //(remove() before next()) uncomment this to receive the
+		// IllegalStateException().
 		while (it.hasNext()) {
-			System.out.println(it.next() + " ");
-			//it.remove();
+			System.out.print(it.next() + " ");
 		}
 		it.remove();
-		System.out.println("\nList=" + part2);
+		// it.remove(); //(remove() after remove() uncomment this to receive the
+		// IllegalStateException().
+		System.out.println("\nmyObject was removed");
+		System.out.println("list=" + part2);
 
-		// Part 3
-		System.out.print("---Part 3 ---- ");
+		// Part 3. ListIterator.
+		System.out.println("----- ListIterator ----- ");
+
 		// Initialize
 		final MyListImpl list = new MyListImpl();
 		list.add("A");
 		list.add(myInteger);
 		list.add(1);
 		list.add(myObject);
-		list.add(null);
+		ListIterator li = list.listIterator();
 
-		 //Testing
-		System.out.println();
-		ListIterator iterator = list.listIterator();
-		while (iterator.hasNext()) {
-			System.out.print(iterator.next() + " ");
+		// Testing
+		// li.remove(); //remove() before next() or previous(), uncomment this to
+		// receive the IllegalStateException().
+		// li.set(999); //set() before next() or previous(), uncomment this to receive
+		// the IllegalStateException().
+		while (li.hasNext()) {
+			System.out.print(li.next() + " ");
 		}
 		System.out.println();
-		while (iterator.hasPrevious()) {
-			System.out.print(iterator.previous() + " ");
+		li.set("String");
+		System.out.println("Test the set() method: myObject was replaced with \"String\":");
+		while (li.hasPrevious()) {
+			System.out.print(li.previous() + " ");
 		}
-		System.out.println("set 1111");
-		iterator.set(1111);
-		while (iterator.hasNext()) {
-			System.out.print(iterator.next() + " ");
-			//iterator.remove();
-		}
-		iterator.remove();
+		li.remove();
+		// li.remove(); //(remove() after remove() uncomment this to receive the
+		// IllegalStateException().
+		System.out.println("\nTest the remove() method: \"A\" was removed.");
 		System.out.println(list);
 	}
 }

@@ -2,15 +2,37 @@ package ua.khpi.orlovskyi.task02;
 
 import java.util.Iterator;
 
-interface ListIterator extends Iterator<Object> { // java.util.Iterator
-	boolean hasPrevious(); // returns true if this list iterator has more elements when traversing the list
-							// in the reverse direction
+/**
+ * Iterator.
+ */
+interface ListIterator extends Iterator<Object> {
 
-	Object previous(); // returns the previous element in the list and moves the cursor position
-						// backwards
+	/**
+	 * Returns true if this list iterator has more elements when traversing the list
+	 * in the reverse direction.
+	 *
+	 * @return true if this list iterator has more elements when traversing the list
+	 *         in the reverse direction.
+	 */
+	boolean hasPrevious();
 
-	void set(Object e); // replaces the last element returned by next or previous with the specified
-						// element
+	/**
+	 * Returns the previous element in the list and moves the cursor position
+	 * backwards.
+	 * @return the previous element in the list.
+	 */
+	Object previous();
 
-	void remove(); // removes from the list the last element that was returned by next or previous
+	/**
+	 * Replaces the last element returned by next or previous with the specified
+	 * element.
+	 *
+	 * @param e element to be set.
+	 */
+	void set(Object e);
+
+	/**
+	 * Removes from the list the last element that was returned by next or previous.
+	 */
+	void remove();
 }

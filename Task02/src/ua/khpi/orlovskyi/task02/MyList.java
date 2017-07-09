@@ -8,8 +8,7 @@ public interface MyList extends Iterable<Object> {
 	/**
 	 * Appends the specified element to the end of this list.
 	 *
-	 * @param e
-	 *            Object to be added
+	 * @param e element to be appended to this list.
 	 */
 	void add(Object e);
 
@@ -21,9 +20,8 @@ public interface MyList extends Iterable<Object> {
 	/**
 	 * Removes the first occurrence of the specified element from this list.
 	 *
-	 * @param o
-	 *            Object to be removed.
-	 * @return if it was successful.
+	 * @param o element to be removed.
+	 * @return true if it was removed.
 	 */
 	boolean remove(Object o);
 
