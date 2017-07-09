@@ -1,7 +1,9 @@
 package ua.khpi.orlovskyi.task02;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  *
@@ -30,11 +32,8 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public void add(final Object e) {
-		currentSize = elementData.length;
-		Object[] newArray = new Object[currentSize + 1];
-		System.arraycopy(elementData, 0, newArray, 0, currentSize);
-		newArray[newArray.length - 1] = e;
-		elementData = newArray;
+		elementData = Arrays.copyOf(elementData, currentSize + 1);
+		elementData[currentSize++] = e;
 	}
 
 	/**
@@ -42,7 +41,10 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public void clear() {
-		elementData = new Object[] {};
+		for (int i = 0; i < currentSize; i++) {
+			elementData[i] = null;
+		}
+		currentSize = 0;
 	}
 
 	/**
@@ -50,24 +52,17 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public boolean remove(final Object o) {
-		currentSize = elementData.length;
 		if (o == null) {
-			for (int i = 0; i < currentSize; i++) {
-				if (elementData[i] == null) {
-					Object[] arr2 = new Object[currentSize - 1];
-					System.arraycopy(elementData, 0, arr2, 0, i);
-					System.arraycopy(elementData, i + 1, arr2, i, arr2.length - i);
-					elementData = arr2;
+			for (int index = 0; index < currentSize; index++) {
+				if (elementData[index] == null) {
+					fastRemove(index);
 					return true;
 				}
 			}
 		} else {
-			for (int i = 0; i < currentSize; i++) {
-				if (o.equals(elementData[i])) {
-					Object[] arr2 = new Object[currentSize - 1];
-					System.arraycopy(elementData, 0, arr2, 0, i);
-					System.arraycopy(elementData, i + 1, arr2, i, arr2.length - i);
-					elementData = arr2;
+			for (int index = 0; index < currentSize; index++) {
+				if (o.equals(elementData[index])) {
+					fastRemove(index);
 					return true;
 				}
 			}
@@ -76,12 +71,24 @@ public class MyListImpl implements MyList, ListIterable {
 	}
 
 	/**
+	 * Private remove method that skips bounds checking and does not return the
+	 * value removed.
+	 */
+	private void fastRemove(final int index) {
+		int numMoved = currentSize - index - 1;
+		if (numMoved > 0) {
+			System.arraycopy(elementData, index + 1, elementData, index, numMoved);
+		}
+		elementData[--currentSize] = null; // Let gc do its work
+	}
+
+	/**
 	 * Returns an array containing all of the elements in this list in proper
 	 * sequence.
 	 */
 	@Override
 	public Object[] toArray() {
-		return Arrays.copyOf(elementData, size());
+		return Arrays.copyOf(elementData, currentSize);
 	}
 
 	/**
@@ -89,7 +96,7 @@ public class MyListImpl implements MyList, ListIterable {
 	 */
 	@Override
 	public int size() {
-		return elementData.length;
+		return currentSize;
 	}
 
 	/**
@@ -169,28 +176,16 @@ public class MyListImpl implements MyList, ListIterable {
 	 *
 	 */
 	private class IteratorImpl implements Iterator<Object> {
-		/**
-		 * Current index of element of the array.
-		 */
-		private int currentIndex = -1;
 
 		/**
-		 * Return current index.
-		 *
-		 * @return current index.
+		 * Index of next element to return.
 		 */
-		public int getCurrentIndex() {
-			return currentIndex;
-		}
+		int cursor;
 
 		/**
-		 * Condition while call remove().
+		 * Index of last element returned; -1 if no such.
 		 */
-		private boolean condition = true;
-		//private boolean nextOrPrevious = false;
-		//public boolean isNextOrPrevious() {
-			//return nextOrPrevious;
-		//}
+		int lastRet = -1;
 
 		/**
 		 * Returns true if the iteration has more elements.
@@ -198,10 +193,7 @@ public class MyListImpl implements MyList, ListIterable {
 		 * @return true if the iteration has more elements.
 		 */
 		public boolean hasNext() {
-			if (currentIndex < elementData.length - 1) {
-				return true;
-			}
-			return false;
+			return cursor != currentSize;
 		}
 
 		/**
@@ -210,8 +202,15 @@ public class MyListImpl implements MyList, ListIterable {
 		 * @return the next element in the iteration.
 		 */
 		public Object next() {
-			condition = false;
-			return elementData[++currentIndex];
+			int i = cursor;
+			if (i >= currentSize) {
+				throw new NoSuchElementException();
+			}
+			if (i >= elementData.length) {
+				throw new ConcurrentModificationException();
+			}
+			cursor = i + 1;
+			return elementData[lastRet = i];
 		}
 
 		/**
@@ -219,34 +218,38 @@ public class MyListImpl implements MyList, ListIterable {
 		 * iterator.
 		 */
 		public void remove() {
-			if (isCondition()) {
+			if (lastRet < 0) {
 				throw new IllegalStateException();
 			}
-			//int i = 0;
-//			if (!isNextOrPrevious()) {
-//				i = currentIndex--;
-//			} else {
-//				i = ++currentIndex;
-//			}
-			Object[] arr2 = new Object[elementData.length - 1];
-			System.arraycopy(elementData, 1, arr2, 0, arr2.length);
-			elementData = arr2;
-			condition = true;
-			--currentIndex;
-//			if (isNextOrPrevious()) {
-//				--currentIndex;
-//			}
+
+			try {
+				remove(lastRet);
+				cursor = lastRet;
+				lastRet = -1;
+			} catch (IndexOutOfBoundsException ex) {
+				throw new ConcurrentModificationException();
+			}
 		}
 
 		/**
-		 * Return true if before calling remove(), was not called next() or before
-		 * calling remove(), was called remove() (repeated call remove()).
-		 *
-		 * @return condition.
+		 * Removes the element at the specified position in this list. Shifts any
+		 * subsequent elements to the left (subtracts one from their indices).
+		 * 
+		 * @param index
+		 *            the index of the element to be removed
+		 * @return the element that was removed from the list
 		 */
-		public boolean isCondition() {
-			return condition;
+		public Object remove(int index) {
+			Object oldValue = elementData[index];
+
+			int numMoved = currentSize - index - 1;
+			if (numMoved > 0) {
+				System.arraycopy(elementData, index + 1, elementData, index, numMoved);
+			}
+			elementData[--currentSize] = null; // Let gc do its work
+			return oldValue;
 		}
+
 	}
 
 	/**
@@ -266,42 +269,61 @@ public class MyListImpl implements MyList, ListIterable {
 	private class ListIteratorImpl extends IteratorImpl implements ListIterator {
 
 		/**
-		 * Returns true if this list iterator has more elements when traversing
-		 * the list in the reverse direction.
+		 * Returns true if this list iterator has more elements when traversing the list
+		 * in the reverse direction.
 		 *
-		 * @return true if this list iterator has more elements when traversing
-		 * the list in the reverse direction.
+		 * @return true if this list iterator has more elements when traversing the list
+		 *         in the reverse direction.
 		 */
 		@Override
 		public boolean hasPrevious() {
-			if (getCurrentIndex() >= 0) {
-				return true;
-			}
-			return false;
+			return cursor != 0;
 		}
 
 		/**
-		 * Returns the previous element in the list and moves the cursor position backwards.
+		 * Returns the previous element in the list and moves the cursor position
+		 * backwards.
 		 */
 		@Override
 		public Object previous() {
+			int i = cursor - 1;
+			if (i < 0) {
+				throw new NoSuchElementException();
+			}
 
-			return elementData[getCurrentIndex() - 1];
+			if (i >= elementData.length) {
+				throw new ConcurrentModificationException();
+			}
+			cursor = i;
+			return elementData[lastRet = i];
 		}
 
 		/**
-		 * Replaces the last element returned by next or previous with the specified element.
+		 * Replaces the last element returned by next or previous with the specified
+		 * element.
 		 */
 		@Override
 		public void set(final Object e) {
-			
+			if (lastRet < 0) {
+				throw new IllegalStateException();
+			}
+
+			try {
+				elementData[lastRet] = e;
+			} catch (IndexOutOfBoundsException ex) {
+				throw new ConcurrentModificationException();
+			}
 		}
+
 		/**
-		 *  Removes from the list the last element that was returned by next or previous.
+		 * Removes from the list the last element that was returned by next or previous.
 		 */
 		@Override
 		public void remove() {
-			
+			if (lastRet < 0) {
+				throw new IllegalStateException();
+			}
+			super.remove();
 		}
 
 	}

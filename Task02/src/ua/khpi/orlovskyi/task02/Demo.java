@@ -1,5 +1,6 @@
 package ua.khpi.orlovskyi.task02;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -47,12 +48,15 @@ public final class Demo {
 		// Testing
 		log.info("Test toString: " + con);
 		log.info("Test contains All: " + con.containsAll(test));
+		log.info("Test size: " + con.size());
 		log.info("Test remove: " + con.remove(myInteger));
 		log.info("Test toString: " + con);
 		log.info("Test size: " + con.size());
 		log.info("Test contains null: " + con.contains(null));
 		con.clear();
 		log.info("Test clear. MyList was cleared: " + con.toString());
+		con.add(5);
+		log.info("add 5: " + con.toString());
 
 		// Part 2
 
@@ -62,7 +66,7 @@ public final class Demo {
 		part2.add(myInteger);
 		part2.add(1);
 		part2.add(myObject);
-		part2.add(null);
+		//part2.add(null);
 
 		// Testing
 		for (Object o : part2) {
@@ -71,9 +75,10 @@ public final class Demo {
 		System.out.println();
 		Iterator<Object> it = part2.iterator();
 		while (it.hasNext()) {
-			System.out.print(it.next() + " ");
-			// it.remove();
+			System.out.println(it.next() + " ");
+			//it.remove();
 		}
+		it.remove();
 		System.out.println("\nList=" + part2);
 
 		// Part 3
@@ -86,10 +91,23 @@ public final class Demo {
 		list.add(myObject);
 		list.add(null);
 
-		// Testing
+		 //Testing
+		System.out.println();
 		ListIterator iterator = list.listIterator();
+		while (iterator.hasNext()) {
+			System.out.print(iterator.next() + " ");
+		}
+		System.out.println();
 		while (iterator.hasPrevious()) {
 			System.out.print(iterator.previous() + " ");
 		}
+		System.out.println("set 1111");
+		iterator.set(1111);
+		while (iterator.hasNext()) {
+			System.out.print(iterator.next() + " ");
+			//iterator.remove();
+		}
+		iterator.remove();
+		System.out.println(list);
 	}
 }
