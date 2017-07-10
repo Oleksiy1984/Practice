@@ -62,9 +62,7 @@ public final class Demo {
 		Iterator<Object> it = part2.iterator();
 
 		// Testing
-		for (Object o : part2) {
-			System.out.print(o + " ");
-		}
+		part2.forEach(o -> System.out.print(o + " "));
 		System.out.println();
 		// it.remove(); //(remove() before next()) uncomment this to receive the
 		// IllegalStateException().
