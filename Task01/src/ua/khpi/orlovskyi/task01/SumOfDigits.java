@@ -1,8 +1,24 @@
 package ua.khpi.orlovskyi.task01;
 
-public class SumOfDigits {
+/**
+ *
+ * Sum of digits of a number.
+ *
+ */
+public final class SumOfDigits {
+	/**
+	 * Private constructor.
+	 */
+	private SumOfDigits() {
+		throw new UnsupportedOperationException("Unsupported operation.");
+	}
 
-    private static Integer calculateSumOfDigits(String arg) {
+	/**
+	 * Determining sum of digits of a number.
+	 * @param arg the argument.
+	 * @return sum of digits of a number.
+	 */
+    private static Integer calculateSumOfDigits(final String arg) {
         try {
             int sum = 0;
             int number = Integer.parseInt(arg);
@@ -21,7 +37,14 @@ public class SumOfDigits {
         }
     }
 
-    public static void main(String args[]) {
+    /**
+	 * Entry point of the Java application.
+	 *
+	 * @param args
+	 *            the command line arguments.
+	 *
+	 */
+    public static void main(final String[] args) {
         for (String arg : args) {
             Integer result = calculateSumOfDigits(arg);
             if (result != null) {
@@ -29,6 +52,6 @@ public class SumOfDigits {
             }
         }
     }
-}  
+}
 
 

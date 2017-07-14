@@ -19,7 +19,8 @@ public final class Demo {
 	/**
 	 * Entry point of the Java application.
 	 *
-	 * @param args the parameters.
+	 * @param args
+	 *            the parameters.
 	 */
 	public static void main(final String[] args) {
 

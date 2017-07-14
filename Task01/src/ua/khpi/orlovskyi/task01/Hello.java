@@ -1,13 +1,31 @@
 package ua.khpi.orlovskyi.task01;
 
-public class Hello {
+/**
+ * Prints to console Hello, World.
+ *
+ */
+public final class Hello {
+	/**
+	 * Private constructor.
+	 */
+	private Hello() {
+		throw new UnsupportedOperationException("Unsupported operation.");
+	}
 
-    private static void printHelloWorld() {
-        System.out.println("Hello, World");
-    }
+	/**
+	 * Prints to console Hello, World.
+	 */
+	private static void printHelloWorld() {
+		System.out.println("Hello, World");
+	}
 
-    public static void main(String args[]) {
-        printHelloWorld();
-    }
-}  
-
+	/**
+	 * Entry point of the Java application.
+	 *
+	 * @param args
+	 *            the command line arguments.
+	 */
+	public static void main(final String[] args) {
+		printHelloWorld();
+	}
+}
