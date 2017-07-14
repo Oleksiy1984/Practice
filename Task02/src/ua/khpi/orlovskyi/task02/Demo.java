@@ -20,7 +20,7 @@ public final class Demo {
 	 * Entry point of the Java application.
 	 *
 	 * @param args
-	 *            the parameters.
+	 *            the command line argument.
 	 */
 	public static void main(final String[] args) {
 
